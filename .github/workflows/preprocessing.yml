@@ -1,0 +1,74 @@
+name: Preprocessing - Sentimen Gojek
+
+# Trigger: push ke main, pull request, atau manual
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'preprocessing/automate_Vigian-Agus-Isenaeni.py'
+      - 'dataset_raw/**'
+      - '.github/workflows/preprocessing.yml'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  preprocessing:
+    name: Run Automated Preprocessing
+    runs-on: ubuntu-latest
+
+    steps:
+      # --------------------------------------------------------
+      # 1. Checkout repository
+      # --------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------------
+      # 2. Setup Python
+      # --------------------------------------------------------
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+          cache: 'pip'
+
+      # --------------------------------------------------------
+      # 3. Install dependencies
+      # --------------------------------------------------------
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pandas==2.2.3 PySastrawi==1.2.1
+
+      # --------------------------------------------------------
+      # 4. Jalankan script preprocessing otomatis
+      # --------------------------------------------------------
+      - name: Run automate preprocessing
+        run: |
+          python preprocessing/automate_Vigian-Agus-Isenae.py \
+            --input  dataset_raw/dataset_sentimen.csv \
+            --output preprocessing/dataset_sentimen_preprocessing/dataset_sentimen_preprocessing.csv
+
+      # --------------------------------------------------------
+      # 5. Upload dataset hasil preprocessing sebagai artefak
+      # --------------------------------------------------------
+      - name: Upload preprocessed dataset as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dataset-sentimen-preprocessing
+          path: preprocessing/dataset_sentimen_preprocessing/dataset_sentimen_preprocessing.csv
+          retention-days: 30
+
+      # --------------------------------------------------------
+      # 6. Commit hasil preprocessing kembali ke repo
+      # --------------------------------------------------------
+      - name: Commit preprocessed dataset to repository
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Actions"
+          git add preprocessing/dataset_sentimen_preprocessing/dataset_sentimen_preprocessing.csv
+          git diff --staged --quiet || git commit -m "ci: update preprocessed dataset [skip ci]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
