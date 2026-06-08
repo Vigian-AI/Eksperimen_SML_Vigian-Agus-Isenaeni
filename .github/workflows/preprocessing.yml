@@ -31,7 +31,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12.7'
-          cache: 'pip'
 
       # --------------------------------------------------------
       # 3. Install dependencies
@@ -39,14 +38,14 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pandas==2.2.3 PySastrawi==1.2.1
+          pip install -r preprocessing/requirements.txt
 
       # --------------------------------------------------------
       # 4. Jalankan script preprocessing otomatis
       # --------------------------------------------------------
       - name: Run automate preprocessing
         run: |
-          python preprocessing/automate_Vigian-Agus-Isenae.py \
+          python preprocessing/automate_Vigian-Agus-Isenaeni.py \
             --input  dataset_raw/dataset_sentimen.csv \
             --output preprocessing/dataset_sentimen_preprocessing/dataset_sentimen_preprocessing.csv
 
