@@ -16,6 +16,8 @@ jobs:
   preprocessing:
     name: Run Automated Preprocessing
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       # --------------------------------------------------------
